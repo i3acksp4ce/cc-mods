@@ -224,6 +224,10 @@ test('a write without a patch hover-reads the text that landed', async ($, on) =
   const code = await mounted.find({ type: 'Code' })
   expect(code?.props.format).toBeUndefined()
   expect(code?.props.source).toBe('one\ntwo')
+  // The row counts the lines the write landed, green alone.
+  const plus = await mounted.findAll({ text: /\+2/ })
+  expect(plus.some((span) => span.props.color === ADDED_COLOR)).toBe(true)
+  expect(await mounted.findAll({ text: /-\d/ })).toHaveLength(0)
   await mounted.unmount()
 })
 

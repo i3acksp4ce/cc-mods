@@ -53,10 +53,13 @@ export const register: Register = on => {
     if ((await $.store.get(ENABLED_KEY)) === 'off') return next(e)
     const view = popupView(row.input, row.output)
     if (view === undefined) return next(e)
-    const counts = countsOf(row.input, row.output)
+    const counts = countsOf(row.tool, row.input, row.output)
     // The subject is the only part cut, so name and counts stay readable.
     const spent =
-      (counts === undefined ? 0 : ` +${counts.added} -${counts.removed}`.length) +
+      (counts === undefined
+        ? 0
+        : (counts.added > 0 ? ` +${counts.added}`.length : 0) +
+          (counts.removed !== undefined && counts.removed > 0 ? ` -${counts.removed}`.length : 0)) +
       (row.isRunning ? 2 : 0) +
       4
     const room = Math.max(
@@ -84,8 +87,12 @@ export const register: Register = on => {
             ...(counts === undefined
               ? []
               : [
-                  Text({ color: ADDED_COLOR, children: [` +${counts.added}`] }),
-                  Text({ color: REMOVED_COLOR, children: [` -${counts.removed}`] }),
+                  ...(counts.added > 0
+                    ? [Text({ color: ADDED_COLOR, children: [` +${counts.added}`] })]
+                    : []),
+                  ...(counts.removed !== undefined && counts.removed > 0
+                    ? [Text({ color: REMOVED_COLOR, children: [` -${counts.removed}`] })]
+                    : []),
                 ]),
             ...(row.isRunning ? [Text({ dimColor: true, children: [' …'] })] : []),
           ],

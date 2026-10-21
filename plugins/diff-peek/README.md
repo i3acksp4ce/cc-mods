@@ -25,6 +25,7 @@ ignores hover, rows stay native with their own diff.
   `NotebookEdit`) and the diff unfolds beneath it.
 - The line counts on the row (`+12 -3`) come from the stored patch once
   the call has finished, and from the strings being swapped while it runs.
+  A write counts the lines it landed, in green alone.
 - A long diff reads one page of 24 lines at a time; a dim `+N lines`
   button opens the next page in place.
 - A write whose diff never came (the previous content was too large to

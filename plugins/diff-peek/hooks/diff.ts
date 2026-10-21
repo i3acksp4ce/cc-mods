@@ -89,7 +89,15 @@ export const hunksOfInput = (input: unknown): Hunk[] => {
 
 // The hunks a row counts: the settled patch when it is there, else the swap
 // the call is still making. A row with no lines says nothing.
-export const countsOf = (input: unknown, output: unknown): ChangeCounts | undefined => {
+export const countsOf = (tool: string, input: unknown, output: unknown): ChangeCounts | undefined => {
+  // A write lands a whole file, so the count is the lines it wrote, green
+  // alone: the text it replaced is a replacement, not a line edit.
+  if (tool === 'Write') {
+    const content = stringFieldOf(output, 'content') ?? stringFieldOf(input, 'content')
+    if (content === undefined) return undefined
+    const lines = splitLines(content)
+    return lines.length === 0 ? undefined : { added: lines.length }
+  }
   const settled = hunksOfOutput(output)
   const hunks = settled.length > 0 ? settled : hunksOfInput(input)
   let added = 0
@@ -100,12 +108,14 @@ export const countsOf = (input: unknown, output: unknown): ChangeCounts | undefi
       else if (line.startsWith('-')) removed += 1
     }
   }
-  return added === 0 && removed === 0 ? undefined : { added, removed }
+  if (added === 0 && removed === 0) return undefined
+  return removed === 0 ? { added } : { added, removed }
 }
 
 export interface ChangeCounts {
   added: number
-  removed: number
+  /** Lines that go; absent on a write, which lands a whole file and removes nothing. */
+  removed?: number
 }
 
 // The unified-diff text a Code element reads under `format: 'diff'`: one @@

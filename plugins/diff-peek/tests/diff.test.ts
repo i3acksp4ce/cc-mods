@@ -140,13 +140,27 @@ test('the row names its file from the result first, then the input', () => {
 })
 
 test('counts read the settled patch, or estimate from the swap while running', () => {
-  expect(countsOf({}, { structuredPatch: [{ lines: [' ctx', '-a', '+b', '+c'] }] })).toEqual({
+  expect(countsOf('Edit', {}, { structuredPatch: [{ lines: [' ctx', '-a', '+b', '+c'] }] })).toEqual({
     added: 2,
     removed: 1,
   })
-  expect(countsOf({ old_string: 'x\ny', new_string: 'z' }, undefined)).toEqual({ added: 1, removed: 2 })
-  expect(countsOf({}, { structuredPatch: [] })).toBeUndefined()
-  expect(countsOf({}, {})).toBeUndefined()
+  expect(countsOf('Edit', { old_string: 'x\ny', new_string: 'z' }, undefined)).toEqual({
+    added: 1,
+    removed: 2,
+  })
+  // A pure insertion names no removal, and the row draws none.
+  expect(countsOf('Edit', {}, { structuredPatch: [{ lines: ['+b', '+c'] }] })).toEqual({ added: 2 })
+  expect(countsOf('Edit', {}, { structuredPatch: [] })).toBeUndefined()
+  expect(countsOf('Edit', {}, {})).toBeUndefined()
+})
+
+test('a write counts the lines it wrote, green alone', () => {
+  expect(countsOf('Write', { file_path: 'a.md' }, { content: 'one\ntwo', structuredPatch: [] })).toEqual({
+    added: 2,
+  })
+  expect(countsOf('Write', { file_path: 'a.md', content: 'one\ntwo' }, undefined)).toEqual({ added: 2 })
+  expect(countsOf('Write', {}, {})).toBeUndefined()
+  expect(countsOf('Write', { content: '' }, undefined)).toBeUndefined()
 })
 
 test('the subject names the file the row acts on, tail first', () => {
