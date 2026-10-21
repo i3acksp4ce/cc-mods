@@ -1,4 +1,4 @@
-# code-diff
+# diff-peek
 
 A mod for Claude Code that folds the diff Claude prints under an edit's
 tool row into a hover. The row keeps a compact line of its own; the result
@@ -12,7 +12,7 @@ From a Claude Code session:
 
 ```
 /plugin marketplace add i3acksp4ce/cc-mods
-/plugin install code-diff@cc-mods
+/plugin install diff-peek@cc-mods
 ```
 
 The mod needs Claude Code v2.1.287 or later. Hover needs a pointer, so the
@@ -30,7 +30,7 @@ ignores hover, rows stay native with their own diff.
 - A write whose diff never came (the previous content was too large to
   diff, or the diff timed out) hover-reads the text that landed as plain
   source instead.
-- `/code-diff` takes `on`, `off`, or nothing to toggle the hover. The
+- `/diff-peek` takes `on`, `off`, or nothing to toggle the hover. The
   choice survives across sessions.
 
 The expanded transcript (ctrl+o, `--verbose`) and rows that ended in an
@@ -58,13 +58,13 @@ reloads on save under `--plugin-dir`, and needs no build step.
 From the repo root:
 
 ```
-claude plugin validate ./plugins/code-diff
-claude plugin test ./plugins/code-diff
+claude plugin validate ./plugins/diff-peek
+claude plugin test ./plugins/diff-peek
 ```
 
 `validate` prints the events the mod handles and the mods API calls it
 makes. `test` runs the suite under `tests/`, which pins the row drawing,
-the reveal, the paging, the folding, and the `/code-diff` command across
+the reveal, the paging, the folding, and the `/diff-peek` command across
 the terminal, Desktop, and VS Code surfaces.
 
 ## License

@@ -125,7 +125,7 @@ export const unifiedDiff = (hunks: ReadonlyArray<Hunk>): string | undefined => {
   if (text.length <= MAX_CHARS) return text
   const cut = text.slice(0, MAX_CHARS)
   const lastLineEnd = cut.lastIndexOf('\n')
-  return `${lastLineEnd < 0 ? cut : cut.slice(0, lastLineEnd)}\n (code-diff: truncated)`
+  return `${lastLineEnd < 0 ? cut : cut.slice(0, lastLineEnd)}\n (diff-peek: truncated)`
 }
 
 // The text a source view draws, cut at a line end past the cap like the

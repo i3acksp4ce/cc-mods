@@ -1,6 +1,6 @@
 {
-  "name": "code-diff",
-  "version": "0.6.0",
+  "name": "diff-peek",
+  "version": "0.7.0",
   "description": "Folds the diff an edit prints under its tool row into a hover: rest the pointer on the row to read it",
   "author": {
     "name": "i3acksp4ce"

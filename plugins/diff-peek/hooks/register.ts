@@ -15,7 +15,7 @@ import {
   subjectOf,
 } from './diff'
 
-// The switch /code-diff writes; the store keeps the choice across sessions.
+// The switch /diff-peek writes; the store keeps the choice across sessions.
 const ENABLED_KEY = 'enabled'
 
 // How many pages of a reveal the pointer has opened, by the tool call it
@@ -69,7 +69,7 @@ export const register: Register = on => {
     const pages = pagesOf.get(row.tool_use_id) ?? 1
     const shownPage = pageOf(view.source, pages)
     const path = pathOf(row.input, row.output)
-    const group = `code-diff-${row.tool_use_id}`
+    const group = `diff-peek-${row.tool_use_id}`
     const { Box, Button, Code, Text } = $.ui.resolve(e)
     return Box({
       flexDirection: 'column',
@@ -137,7 +137,7 @@ export const register: Register = on => {
 
   on('session.start', async ($, e, next) => {
     await $.command.register({
-      name: 'code-diff',
+      name: 'diff-peek',
       description: 'Show or hide the hover diff under edit tool rows',
       argumentHint: '[on|off]',
       immediate: true,
@@ -145,10 +145,10 @@ export const register: Register = on => {
     return next(e)
   })
 
-  on('command.run', { command: 'code-diff' }, async ($, e) => {
+  on('command.run', { command: 'diff-peek' }, async ($, e) => {
     const wanted = (e.args ?? '').trim()
     if (wanted !== '' && wanted !== 'on' && wanted !== 'off') {
-      return { text: 'code-diff takes on, off, or nothing to toggle' }
+      return { text: 'diff-peek takes on, off, or nothing to toggle' }
     }
     const current = (await $.store.get(ENABLED_KEY)) === 'off' ? 'off' : 'on'
     const value = wanted === '' ? (current === 'on' ? 'off' : 'on') : wanted

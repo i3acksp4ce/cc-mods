@@ -129,7 +129,7 @@ test('a diff past the cap cuts at a line end and says so as a context line', () 
   const view = popupView({}, { structuredPatch: [long] })
   expect(view?.kind).toBe('diff')
   expect(view?.source.length).toBeLessThan(100)
-  expect(view?.source.endsWith('\n (code-diff: truncated)')).toBe(true)
+  expect(view?.source.endsWith('\n (diff-peek: truncated)')).toBe(true)
 })
 
 test('the row names its file from the result first, then the input', () => {

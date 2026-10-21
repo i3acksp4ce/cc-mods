@@ -1,0 +1,4 @@
+{
+  "description": "The diff-peek hooks module",
+  "modules": ["./register.ts"]
+}

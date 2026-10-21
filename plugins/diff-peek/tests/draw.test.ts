@@ -1,5 +1,5 @@
 // The wiring seams: what the engine sees when it draws an edit row, its
-// result block, and when the user runs /code-diff. The pure half is pinned
+// result block, and when the user runs /diff-peek. The pure half is pinned
 // in diff.test.ts.
 import { expect, mock, test } from 'claude-code/testing'
 import { ADDED_COLOR, PAGE_LINES, REMOVED_COLOR } from '../hooks/diff'
@@ -30,7 +30,7 @@ test('a settled edit row draws its own line with colored counts and a hover diff
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   const mounted = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolUse',
     requestId: 't1',
     surface: 'terminal',
@@ -62,7 +62,7 @@ test('a running edit estimates its counts and hover-reads the strings it swaps',
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   const mounted = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolUse',
     requestId: 't2',
     surface: 'terminal',
@@ -84,7 +84,7 @@ test('rows the mod does not touch draw whole', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   const mounted = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolUse',
     requestId: 't3',
     surface: 'terminal',
@@ -106,7 +106,7 @@ test('the expanded transcript keeps every row native', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   const mounted = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolUse',
     requestId: 't4',
     surface: 'terminal',
@@ -122,7 +122,7 @@ test('an edit that ended badly draws its error whole', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   const mounted = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolUse',
     requestId: 't5',
     surface: 'terminal',
@@ -138,7 +138,7 @@ test('the desktop row gains the hover diff as the terminal one does', async ($, 
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   const mounted = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolUse',
     requestId: 't6',
     surface: 'desktop',
@@ -153,7 +153,7 @@ test('vscode keeps the native row and result, since its panel has no hover', asy
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   const row = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolUse',
     requestId: 't7',
     surface: 'vscode',
@@ -164,7 +164,7 @@ test('vscode keeps the native row and result, since its panel has no hover', asy
   expect(await row.find({ text: /engine row/ })).toBeDefined()
   await row.unmount()
   const block = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolResult',
     requestId: 't7r',
     surface: 'vscode',
@@ -179,7 +179,7 @@ test('the result block folds so the diff never prints on its own', async ($, on)
   mock.store(on, {})
   on('ui.render', () => ({ type: 'Text', props: {}, children: ['native result block'] }))
   const folded = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolResult',
     requestId: 'r1',
     surface: 'terminal',
@@ -190,7 +190,7 @@ test('the result block folds so the diff never prints on its own', async ($, on)
   await folded.unmount()
   // A read's result block is not the mod's to fold.
   const read = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolResult',
     requestId: 'r2',
     surface: 'terminal',
@@ -205,7 +205,7 @@ test('a write without a patch hover-reads the text that landed', async ($, on) =
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   const mounted = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolUse',
     requestId: 't8',
     surface: 'terminal',
@@ -240,7 +240,7 @@ test('a long reveal reads a page and grows through the more button', async ($, o
     },
   }
   const mounted = await $.ui.mount({
-    plugin: 'code-diff',
+    plugin: 'diff-peek',
     component: 'ToolUse',
     requestId: 't9',
     surface: 'terminal',
@@ -260,16 +260,16 @@ test('a long reveal reads a page and grows through the more button', async ($, o
   await mounted.unmount()
 })
 
-test('/code-diff folds the hover away and back', async ($, on) => {
+test('/diff-peek folds the hover away and back', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   on('session.start', () => ({ cwd: '/work' }))
-  on('command.register', () => ({ value: { command: 'code-diff' } }))
+  on('command.register', () => ({ value: { command: 'diff-peek' } }))
   await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })
 
   const mountRow = (requestId: string) =>
     $.ui.mount({
-      plugin: 'code-diff',
+      plugin: 'diff-peek',
       component: 'ToolUse',
       requestId,
       surface: 'terminal',
@@ -281,19 +281,19 @@ test('/code-diff folds the hover away and back', async ($, on) => {
   expect(await shown.find({ type: 'Code' })).toBeDefined()
   await shown.unmount()
 
-  const off = await $.command.run({ command: 'code-diff', args: 'off', ...COMMAND_RUN })
+  const off = await $.command.run({ command: 'diff-peek', args: 'off', ...COMMAND_RUN })
   expect(off.text).toBe('hover diff off')
   const hidden = await mountRow('c2')
   expect(await hidden.find({ type: 'Code' })).toBeUndefined()
   expect(await hidden.find({ text: /engine row/ })).toBeDefined()
   await hidden.unmount()
 
-  const back = await $.command.run({ command: 'code-diff', args: '', ...COMMAND_RUN })
+  const back = await $.command.run({ command: 'diff-peek', args: '', ...COMMAND_RUN })
   expect(back.text).toBe('hover diff on')
   const shownAgain = await mountRow('c3')
   expect(await shownAgain.find({ type: 'Code' })).toBeDefined()
   await shownAgain.unmount()
 
-  const bad = await $.command.run({ command: 'code-diff', args: 'maybe', ...COMMAND_RUN })
-  expect(bad.text).toBe('code-diff takes on, off, or nothing to toggle')
+  const bad = await $.command.run({ command: 'diff-peek', args: 'maybe', ...COMMAND_RUN })
+  expect(bad.text).toBe('diff-peek takes on, off, or nothing to toggle')
 })

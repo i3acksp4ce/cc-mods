@@ -3,6 +3,6 @@
   "description": "Mods for Claude Code: hover-to-read file diffs and more",
   "owner": { "name": "i3acksp4ce" },
   "plugins": [
-    { "name": "code-diff", "source": "./plugins/code-diff" }
+    { "name": "diff-peek", "source": "./plugins/diff-peek" }
   ]
 }
