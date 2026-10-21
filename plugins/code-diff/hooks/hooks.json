@@ -1,0 +1,4 @@
+{
+  "description": "The code-diff hooks module",
+  "modules": ["./register.ts"]
+}
