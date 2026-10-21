@@ -31,6 +31,8 @@ ignores hover, rows stay native with their own diff.
 - A write whose diff never came (the previous content was too large to
   diff, or the diff timed out) hover-reads the text that landed as plain
   source instead.
+- The file path on the row links from a `file://` URL, so a click opens
+  the file, the way the native row's path does (terminal).
 - `/diff-peek` takes `on`, `off`, or nothing to toggle the hover. The
   choice survives across sessions.
 

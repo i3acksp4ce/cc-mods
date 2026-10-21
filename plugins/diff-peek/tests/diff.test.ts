@@ -5,6 +5,7 @@ import {
   PAGE_LINES,
   clip,
   countsOf,
+  fileHref,
   hunksOfInput,
   hunksOfOutput,
   isEditTool,
@@ -174,4 +175,12 @@ test('the subject is the only part cut', () => {
   expect(clip('abcdef', 6)).toBe('abcdef')
   expect(clip('abcdef', 4)).toBe('abc…')
   expect(clip('abcdef', 1)).toBe('…')
+})
+
+test('an absolute path links from a file URL, the drive kept whole', () => {
+  expect(fileHref('C:\\w\\src\\notes.md')).toBe('file:///C:/w/src/notes.md')
+  expect(fileHref('/usr/local/a.md')).toBe('file:///usr/local/a.md')
+  expect(fileHref('C:\\my notes\\a b.md')).toBe('file:///C:/my%20notes/a%20b.md')
+  // A relative path names no file on its own, so it links from nothing.
+  expect(fileHref('src/notes.md')).toBeUndefined()
 })

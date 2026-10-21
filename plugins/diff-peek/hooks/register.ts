@@ -8,6 +8,7 @@ import {
   REMOVED_COLOR,
   clip,
   countsOf,
+  fileHref,
   isEditTool,
   pageOf,
   pathOf,
@@ -73,7 +74,8 @@ export const register: Register = on => {
     const shownPage = pageOf(view.source, pages)
     const path = pathOf(row.input, row.output)
     const group = `diff-peek-${row.tool_use_id}`
-    const { Box, Button, Code, Text } = $.ui.resolve(e)
+    const href = fileHref(path ?? '')
+    const { Box, Button, Code, Link, Text } = $.ui.resolve(e)
     return Box({
       flexDirection: 'column',
       alignItems: 'flex-start',
@@ -83,7 +85,14 @@ export const register: Register = on => {
           flexDirection: 'row',
           children: [
             Text({ children: [row.tool] }),
-            ...(shown === '' ? [] : [Text({ children: [` ${shown}`] })]),
+            ...(shown === ''
+              ? []
+              : [
+                  Text({ children: [' '] }),
+                  ...(href === undefined
+                    ? [Text({ children: [shown] })]
+                    : [Link({ href, children: [Text({ children: [shown] })] })]),
+                ]),
             ...(counts === undefined
               ? []
               : [
