@@ -191,17 +191,28 @@ export const pathOf = (input: unknown, output: unknown): string | undefined => {
   return undefined
 }
 
-// A path draws the way a person names it: the last two segments joined,
-// whatever separators came in.
-export const pathTail = (path: string): string => {
-  const segments = path.split(/[\\/]+/).filter((part) => part !== '')
-  return segments.slice(-2).join('/')
+// What the row names as its subject: the path from the workspace root when
+// the file sits under it, else the absolute path, so a file outside never
+// reads as if it were inside. Both draw with forward slashes, the way a
+// path reads in a repo.
+export const subjectOf = (input: unknown, output: unknown, root: string | undefined): string => {
+  const path = pathOf(input, output)
+  if (path === undefined) return ''
+  return relativeOf(path, root) ?? forwardSlashes(path)
 }
 
-// What the row names as its subject: the file the call acts on, as its tail.
-export const subjectOf = (input: unknown, output: unknown): string => {
-  const path = pathOf(input, output)
-  return path === undefined ? '' : pathTail(path)
+const forwardSlashes = (path: string): string => path.replace(/\\/g, '/')
+
+// The path from the workspace root, when the file sits under it. Case folds
+// on both sides: Windows spells one directory in any case.
+export const relativeOf = (path: string, root: string | undefined): string | undefined => {
+  if (root === undefined || root === '') return undefined
+  const parts = path.replace(/\\/g, '/')
+  const base = root.replace(/\\/g, '/').replace(/\/+$/, '')
+  const lower = parts.toLowerCase()
+  const lowerBase = base.toLowerCase()
+  if (lower === lowerBase || !lower.startsWith(`${lowerBase}/`)) return undefined
+  return parts.slice(base.length + 1)
 }
 
 // The subject is the only part cut, so the tool name and the counts stay

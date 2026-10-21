@@ -54,7 +54,9 @@ export const register: Register = on => {
     const view = popupView(row.input, row.output)
     if (view === undefined) return next(e)
     const counts = countsOf(row.tool, row.input, row.output)
-    // The subject is the only part cut, so name and counts stay readable.
+    const root = await $.session.root()
+    // The subject reads from the workspace root when the file sits under
+    // it, and is the only part cut, so name and counts stay readable.
     const spent =
       (counts === undefined
         ? 0
@@ -66,7 +68,7 @@ export const register: Register = on => {
       (e.viewport?.columns ?? FALLBACK_COLUMNS) - TOOL_GUTTER - row.tool.length - spent,
       8,
     )
-    const shown = clip(subjectOf(row.input, row.output), room)
+    const shown = clip(subjectOf(row.input, row.output, root), room)
     // The reveal reads one page at a time: a region in the transcript has
     // no scroll, so a long diff grows through the more button instead.
     const pages = pagesOf.get(row.tool_use_id) ?? 1

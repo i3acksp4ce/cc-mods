@@ -29,6 +29,7 @@ const NATIVE_ROW = () => ({ type: 'Text' as const, props: {}, children: ['engine
 test('a settled edit row draws its own line with colored counts and a hover diff', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
+  on('session.root', () => ({ value: 'C:\\w' }))
   const mounted = await $.ui.mount({
     plugin: 'diff-peek',
     component: 'ToolUse',
@@ -61,6 +62,7 @@ test('a settled edit row draws its own line with colored counts and a hover diff
 test('a running edit estimates its counts and hover-reads the strings it swaps', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
+  on('session.root', () => ({ value: 'C:\\w' }))
   const mounted = await $.ui.mount({
     plugin: 'diff-peek',
     component: 'ToolUse',
@@ -137,6 +139,7 @@ test('an edit that ended badly draws its error whole', async ($, on) => {
 test('the desktop row gains the hover diff as the terminal one does', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
+  on('session.root', () => ({ value: 'C:\\w' }))
   const mounted = await $.ui.mount({
     plugin: 'diff-peek',
     component: 'ToolUse',
@@ -201,9 +204,10 @@ test('the result block folds so the diff never prints on its own', async ($, on)
   await read.unmount()
 })
 
-test('a unix path row draws its tail the same way a windows one does', async ($, on) => {
+test('a unix path outside the root reads absolute', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
+  on('session.root', () => ({ value: 'C:\\w' }))
   const mounted = await $.ui.mount({
     plugin: 'diff-peek',
     component: 'ToolUse',
@@ -221,13 +225,14 @@ test('a unix path row draws its tail the same way a windows one does', async ($,
       output: SETTLED_OUTPUT,
     },
   })
-  expect(await mounted.find({ text: /local\/notes\.md/ })).toBeDefined()
+  expect(await mounted.find({ text: '/usr/local/notes.md' })).toBeDefined()
   await mounted.unmount()
 })
 
 test('a write without a patch hover-reads the text that landed', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
+  on('session.root', () => ({ value: 'C:\\w' }))
   const mounted = await $.ui.mount({
     plugin: 'diff-peek',
     component: 'ToolUse',
@@ -258,6 +263,7 @@ test('a write without a patch hover-reads the text that landed', async ($, on) =
 test('a long reveal reads a page and grows through the more button', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
+  on('session.root', () => ({ value: 'C:\\w' }))
   const props = {
     tool_use_id: 't9',
     ...EDIT_ROW,
@@ -291,6 +297,7 @@ test('a long reveal reads a page and grows through the more button', async ($, o
 test('/diff-peek folds the hover away and back', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
+  on('session.root', () => ({ value: 'C:\\w' }))
   on('session.start', () => ({ cwd: '/work' }))
   on('command.register', () => ({ value: { command: 'diff-peek' } }))
   await $.session.start({ surface: 'terminal', isInteractive: true, cwd: '/work' })

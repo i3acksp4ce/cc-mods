@@ -41,7 +41,7 @@ hidden there.
 ## How it works
 
 - A `ui.render` hook on `ToolUse` draws the edit row itself: the tool
-  name, the file's tail, and the counts. The engine's own row claims the
+  name, the file's path from the workspace root, and the counts. The engine's own row claims the
   full width, so drawing the line is what lets the hover zone hug the
   text; the row's box carries a hover scope.
 - The folded reveal beneath shares the scope

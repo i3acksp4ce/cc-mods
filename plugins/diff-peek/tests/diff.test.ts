@@ -10,8 +10,8 @@ import {
   isEditTool,
   pageOf,
   pathOf,
-  pathTail,
   popupView,
+  relativeOf,
   subjectOf,
 } from '../hooks/diff'
 
@@ -163,11 +163,22 @@ test('a write counts the lines it wrote, green alone', () => {
   expect(countsOf('Write', { content: '' }, undefined)).toBeUndefined()
 })
 
-test('the subject names the file the row acts on, tail first', () => {
-  expect(pathTail('C:\\w\\src\\notes.md')).toBe('src/notes.md')
-  expect(pathTail('notes.md')).toBe('notes.md')
-  expect(subjectOf({ file_path: 'a\\b\\c.md' }, {})).toBe('b/c.md')
-  expect(subjectOf({}, undefined)).toBe('')
+test('the subject names the file from the workspace root when it can', () => {
+  expect(relativeOf('C:\\w\\src\\notes.md', 'C:\\w')).toBe('src/notes.md')
+  expect(relativeOf('/usr/local/notes.md', '/usr')).toBe('local/notes.md')
+  expect(relativeOf('C:\\W\\SRC\\notes.md', 'c:\\w')).toBe('SRC/notes.md')
+  expect(relativeOf('C:\\elsewhere\\notes.md', 'C:\\w')).toBeUndefined()
+  expect(relativeOf('C:\\w', 'C:\\w')).toBeUndefined()
+  expect(relativeOf('src/notes.md', undefined)).toBeUndefined()
+})
+
+test('the subject names the file the row acts on, root-relative first', () => {
+  expect(subjectOf({ file_path: 'C:\\w\\src\\notes.md' }, {}, 'C:\\w')).toBe('src/notes.md')
+  // A file outside the root reads as the absolute path, never as a tail
+  // that could sit anywhere.
+  expect(subjectOf({ file_path: 'D:\\other\\notes.md' }, {}, 'C:\\w')).toBe('D:/other/notes.md')
+  expect(subjectOf({ file_path: 'a\\b\\c.md' }, {}, undefined)).toBe('a/b/c.md')
+  expect(subjectOf({}, undefined, 'C:\\w')).toBe('')
 })
 
 test('the subject is the only part cut', () => {
