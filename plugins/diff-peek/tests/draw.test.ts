@@ -47,9 +47,6 @@ test('a settled edit row draws its own line with colored counts and a hover diff
   expect(plus.some((span) => span.props.color === ADDED_COLOR)).toBe(true)
   const minus = await mounted.findAll({ text: /-1/ })
   expect(minus.some((span) => span.props.color === REMOVED_COLOR)).toBe(true)
-  // The subject links from the file, the way the native row's path does.
-  const link = await mounted.find({ type: 'Link' })
-  expect(link?.props.href).toBe('file:///C:/w/src/notes.md')
   // The folded reveal under the line carries the diff.
   const code = await mounted.find({ type: 'Code' })
   expect(code).toBeDefined()
@@ -204,7 +201,7 @@ test('the result block folds so the diff never prints on its own', async ($, on)
   await read.unmount()
 })
 
-test('a unix path row links the same way a windows one does', async ($, on) => {
+test('a unix path row draws its tail the same way a windows one does', async ($, on) => {
   mock.store(on, {})
   on('ui.render', NATIVE_ROW)
   const mounted = await $.ui.mount({
@@ -224,8 +221,6 @@ test('a unix path row links the same way a windows one does', async ($, on) => {
       output: SETTLED_OUTPUT,
     },
   })
-  const link = await mounted.find({ type: 'Link' })
-  expect(link?.props.href).toBe('file:///usr/local/notes.md')
   expect(await mounted.find({ text: /local\/notes\.md/ })).toBeDefined()
   await mounted.unmount()
 })
@@ -257,8 +252,6 @@ test('a write without a patch hover-reads the text that landed', async ($, on) =
   const plus = await mounted.findAll({ text: /\+2/ })
   expect(plus.some((span) => span.props.color === ADDED_COLOR)).toBe(true)
   expect(await mounted.findAll({ text: /-\d/ })).toHaveLength(0)
-  // This fixture's path is relative, so it names no file to link.
-  expect(await mounted.find({ type: 'Link' })).toBeUndefined()
   await mounted.unmount()
 })
 

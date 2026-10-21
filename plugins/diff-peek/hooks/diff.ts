@@ -204,21 +204,6 @@ export const subjectOf = (input: unknown, output: unknown): string => {
   return path === undefined ? '' : pathTail(path)
 }
 
-// The href a path links from: an absolute file URL, with a Windows drive
-// kept whole and every segment percent-encoded. A relative path names no
-// file on its own, so it links from nothing.
-export const fileHref = (path: string): string | undefined => {
-  if (!/^(?:[a-zA-Z]:[\\/]|\/)/.test(path)) return undefined
-  const segments = path
-    .replace(/\\/g, '/')
-    .split('/')
-    .map((segment) =>
-      segment.length === 2 && segment.endsWith(':') ? segment : encodeURIComponent(segment),
-    )
-  const joined = segments.join('/')
-  return `file://${joined.startsWith('/') ? joined : `/${joined}`}`
-}
-
 // The subject is the only part cut, so the tool name and the counts stay
 // readable.
 export const clip = (text: string, room: number): string => {
