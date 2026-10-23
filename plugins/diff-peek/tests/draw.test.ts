@@ -40,8 +40,23 @@ test('a settled edit row draws its own line with colored counts and a hover diff
   })
   // The engine's row is replaced, not wrapped: the line is the mod's alone.
   expect(await mounted.find({ text: /engine row/ })).toBeUndefined()
-  expect(await mounted.find({ text: /^Edit$/ })).toBeDefined()
-  expect(await mounted.find({ text: /notes\.md/ })).toBeDefined()
+  // The tool name draws bold and the subject sits in parentheses.
+  const tool = await mounted.find({ text: /^Edit$/ })
+  expect(tool?.props.weight).toBe('bold')
+  expect(await mounted.find({ text: /^\(src\/notes\.md\)$/ })).toBeDefined()
+  // The emoji at the end carries the hover scope, shared with the reveal
+  // and nothing else on the row. find hands back no hover, so the wiring
+  // reads from the drawn tree itself.
+  expect(await mounted.find({ text: /🔽/ })).toBeDefined()
+  const scopes: Array<{ scope?: string; display?: string }> = []
+  const visit = (el: unknown): void => {
+    if (typeof el !== 'object' || el === null) return
+    const element = el as { hover?: { scope?: string; display?: string }; children?: unknown[] }
+    if (element.hover?.scope !== undefined) scopes.push(element.hover)
+    for (const child of element.children ?? []) visit(child)
+  }
+  visit(await mounted.drawn())
+  expect(scopes).toEqual([{ scope: 'diff-peek-t1' }, { scope: 'diff-peek-t1', display: 'flex' }])
   // The counts carry the pinned bright hexes, the pair the person picked to
   // read like the hover diff's ink over its tinted background.
   const plus = await mounted.findAll({ text: /\+1/ })
@@ -225,7 +240,7 @@ test('a unix path outside the root reads absolute', async ($, on) => {
       output: SETTLED_OUTPUT,
     },
   })
-  expect(await mounted.find({ text: '/usr/local/notes.md' })).toBeDefined()
+  expect(await mounted.find({ text: /^\(\/usr\/local\/notes\.md\)$/ })).toBeDefined()
   await mounted.unmount()
 })
 

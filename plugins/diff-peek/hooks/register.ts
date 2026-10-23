@@ -38,13 +38,14 @@ const TOOL_GUTTER = 4
 const FALLBACK_COLUMNS = 120
 
 export const register: Register = on => {
-  // An edit row is the mod's own drawing, so the line hugs its words and the
-  // hover scope lights on the text alone: the engine's own row would claim
-  // the full width, and a box around it can never be narrower than that.
-  // The folded reveal beneath shares the scope and unfolds while the pointer
-  // rests on the line. VS Code ignores hover, so there the row stays native
-  // with its own diff; so does the expanded transcript (ctrl+o, --verbose),
-  // and a call that ended in an error or an interrupt keeps its own ending.
+  // An edit row is the mod's own drawing, so the line hugs its words and
+  // the hover scope sits on the emoji before the tool name alone: the
+  // engine's own row would claim the full width, and a box around it can
+  // never be narrower than that. The folded reveal beneath shares the
+  // scope and unfolds while the pointer rests on the emoji. VS Code
+  // ignores hover, so there the row stays native with its own diff; so
+  // does the expanded transcript (ctrl+o, --verbose), and a call that
+  // ended in an error or an interrupt keeps its own ending.
   on('ui.render', { component: 'ToolUse' }, async ($, e, next) => {
     const row = e.props
     if (e.surface === 'vscode') return next(e)
@@ -54,15 +55,19 @@ export const register: Register = on => {
     const view = popupView(row.input, row.output)
     if (view === undefined) return next(e)
     const counts = countsOf(row.tool, row.input, row.output)
+    // The count strings are built once: they draw as they are, and the
+    // width budget measures the same text.
+    const plusText = counts !== undefined && counts.added > 0 ? ` +${counts.added}` : ''
+    const minusText = counts?.removed ? ` -${counts.removed}` : ''
     const root = await $.session.root()
     // The subject reads from the workspace root when the file sits under
     // it, and is the only part cut, so name and counts stay readable.
     const spent =
-      (counts === undefined
-        ? 0
-        : (counts.added > 0 ? ` +${counts.added}`.length : 0) +
-          (counts.removed !== undefined && counts.removed > 0 ? ` -${counts.removed}`.length : 0)) +
+      plusText.length +
+      minusText.length +
       (row.isRunning ? 2 : 0) +
+      // Parentheses hug the subject; the emoji reads two cells and a space.
+      5 +
       4
     const room = Math.max(
       (e.viewport?.columns ?? FALLBACK_COLUMNS) - TOOL_GUTTER - row.tool.length - spent,
@@ -81,23 +86,18 @@ export const register: Register = on => {
       alignItems: 'flex-start',
       children: [
         Box({
-          hover: { scope: group },
           flexDirection: 'row',
           children: [
-            Text({ children: [row.tool] }),
-            // The path draws as plain text: a file:// link reads as a second,
-            // full-length line on the terminals that spell the URL out.
-            ...(shown === '' ? [] : [Text({ children: [` ${shown}`] })]),
-            ...(counts === undefined
-              ? []
-              : [
-                  ...(counts.added > 0
-                    ? [Text({ color: ADDED_COLOR, children: [` +${counts.added}`] })]
-                    : []),
-                  ...(counts.removed !== undefined && counts.removed > 0
-                    ? [Text({ color: REMOVED_COLOR, children: [` -${counts.removed}`] })]
-                    : []),
-                ]),
+            // The emoji alone is the hover target: the scope on its box
+            // lights only while the pointer rests on it.
+            Box({ hover: { scope: group }, children: [Text({ children: ['🔽 '] })] }),
+            Text({ weight: 'bold', children: [row.tool] }),
+            // The path draws as plain text inside parentheses: a file://
+            // link reads as a second, full-length line on the terminals
+            // that spell the URL out.
+            ...(shown === '' ? [] : [Text({ children: [`(${shown})`] })]),
+            ...(plusText === '' ? [] : [Text({ color: ADDED_COLOR, children: [plusText] })]),
+            ...(minusText === '' ? [] : [Text({ color: REMOVED_COLOR, children: [minusText] })]),
             ...(row.isRunning ? [Text({ dimColor: true, children: [' …'] })] : []),
           ],
         }),

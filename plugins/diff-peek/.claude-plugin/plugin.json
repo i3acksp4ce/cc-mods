@@ -1,7 +1,7 @@
 {
   "name": "diff-peek",
-  "version": "0.11.0",
-  "description": "Folds the diff an edit prints under its tool row into a hover: rest the pointer on the row to read it",
+  "version": "0.12.0",
+  "description": "Folds the diff an edit prints under its tool row into a hover: rest the pointer on the emoji to read it",
   "author": {
     "name": "i3acksp4ce"
   }

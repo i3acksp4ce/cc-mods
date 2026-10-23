@@ -72,7 +72,6 @@ export const hunksOfInput = (input: unknown): Hunk[] => {
   for (const edit of edits) {
     if (typeof edit !== 'object' || edit === null) continue
     const { old_string: oldText, new_string: newText } = edit as Record<string, unknown>
-    if (typeof oldText !== 'string' && typeof newText !== 'string') continue
     const gone = typeof oldText === 'string' ? splitLines(oldText) : []
     const come = typeof newText === 'string' ? splitLines(newText) : []
     if (gone.length === 0 && come.length === 0) continue
@@ -118,33 +117,31 @@ export interface ChangeCounts {
   removed?: number
 }
 
-// The unified-diff text a Code element reads under `format: 'diff'`: one @@
-// header per hunk, then the hunk's marked lines. The reveal pages long text,
-// and a tree draws its first 100,000 characters, so a diff past the cap cuts
-// at a line end and says so as a context line, which the reader still parses.
+// The reveal pages its text, and a tree draws its first 100,000 characters,
+// so anything past the cap cuts at a line end: the reader still parses the
+// last line.
 const MAX_CHARS = 60_000
 
-export const unifiedDiff = (hunks: ReadonlyArray<Hunk>): string | undefined => {
+const cutAtLineEnd = (text: string): string => {
+  if (text.length <= MAX_CHARS) return text
+  const cut = text.slice(0, MAX_CHARS)
+  const lastLineEnd = cut.lastIndexOf('\n')
+  return lastLineEnd < 0 ? cut : cut.slice(0, lastLineEnd)
+}
+
+// The unified-diff text a Code element reads under `format: 'diff'`: one @@
+// header per hunk, then the hunk's marked lines. A cut says so as a context
+// line, which the reader still parses.
+const unifiedDiff = (hunks: ReadonlyArray<Hunk>): string | undefined => {
   if (hunks.length === 0) return undefined
-  const text = hunks
+  const whole = hunks
     .map(
       (hunk) =>
         `@@ -${hunk.oldStart},${hunk.oldLines} +${hunk.newStart},${hunk.newLines} @@\n${hunk.lines.join('\n')}`,
     )
     .join('\n')
-  if (text.length <= MAX_CHARS) return text
-  const cut = text.slice(0, MAX_CHARS)
-  const lastLineEnd = cut.lastIndexOf('\n')
-  return `${lastLineEnd < 0 ? cut : cut.slice(0, lastLineEnd)}\n (diff-peek: truncated)`
-}
-
-// The text a source view draws, cut at a line end past the cap like the
-// diff text is.
-export const clippedText = (text: string): string => {
-  if (text.length <= MAX_CHARS) return text
-  const cut = text.slice(0, MAX_CHARS)
-  const lastLineEnd = cut.lastIndexOf('\n')
-  return lastLineEnd < 0 ? cut : cut.slice(0, lastLineEnd)
+  const text = cutAtLineEnd(whole)
+  return text === whole ? text : `${text}\n (diff-peek: truncated)`
 }
 
 // What a row reads on hover: the stored patch when the call has one, else
@@ -162,7 +159,7 @@ export const popupView = (input: unknown, output: unknown): PopupView | undefine
   const swapped = unifiedDiff(hunksOfInput(input))
   if (swapped !== undefined) return { kind: 'diff', source: swapped }
   const content = stringFieldOf(output, 'content') ?? stringFieldOf(input, 'content')
-  if (content !== undefined) return { kind: 'source', source: clippedText(content) }
+  if (content !== undefined) return { kind: 'source', source: cutAtLineEnd(content) }
   return undefined
 }
 

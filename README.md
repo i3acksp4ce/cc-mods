@@ -28,10 +28,10 @@ If a session was open while you installed, run `/reload-plugins`.
 
 ## Try it
 
-Ask Claude to edit a file, then rest the pointer on its `Edit` row. The
-diff unfolds under the row; move the pointer off and it folds back. The
-mod's own [README](plugins/diff-peek/README.md) has the full behavior and
-the `/diff-peek` toggle.
+Ask Claude to edit a file, then rest the pointer on the 🔽 at the start of
+its `Edit` row. The diff unfolds under the row; move the pointer off and it
+folds back. The mod's own [README](plugins/diff-peek/README.md) has the
+full behavior and the `/diff-peek` toggle.
 
 ## Develop
 
